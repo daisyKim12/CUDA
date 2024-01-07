@@ -1,0 +1,48 @@
+*-display                 
+       description: VGA compatible controller
+       product: TU102 [GeForce RTX 2080 Ti]
+       vendor: NVIDIA Corporation
+       physical id: 0
+       bus info: pci@0000:3b:00.0
+       version: a1
+       width: 64 bits
+       clock: 33MHz
+       capabilities: vga_controller bus_master cap_list rom
+       configuration: driver=nvidia latency=0
+       resources: iomemory:38bf0-38bef iomemory:38bf0-38bef irq:103 memory:b3000000-b3ffffff memory:38bfe0000000-38bfefffffff memory:38bff0000000-38bff1ffffff ioport:9000(size=128) memory:b4000000-b407ffff
+
+
+hardware spec
+        Device : "GeForce RTX 2080 Ti"
+        driverVersion : 10010
+        runtimeVersion : 10000
+        CUDA Driver Version / Runtime Version  10.1 / 10.0
+        CUDA Capability Major/Minor version number : 7.5
+        Total amount of global memory : 10.73 GBytes (11523260416 bytes)
+        GPU Clock rate :        1545 MHz(1.54 GHz)
+        Memory Clock rate :     7000 Mhz
+        Memory Bus Width :      352-bit
+        L2 Cache Size:  5767168 bytes
+        Total amount of constant memory:        65536 bytes
+        Total amount of shared memory per block:        49152 bytes
+        Total number of registers available per block:  65536
+        Warp Size:      32
+        Maximum number of threads per multiprocessor:   1024
+        Maximum number of thread per block:     1024
+        Maximum sizes of each dimension of a block:     1024 x 1024 x 64
+        Maximum sizes of each dimension of a grid:      2147483647 x 65535 x 65535
+
+        RTX-OPS	76T        
+        Memory Clock	14.0 Gbps
+        Standard Memory Config	11 GB GDDR6
+        Memory Interface Width	352-bit
+        Memory Bandwidth (GB/sec)	616 GB/s
+
+hardware spec summary
+        CUDA Cores	            4352
+        warps per sm            4
+        threads per warps       32
+        Maximum number of threads per multiprocessor:   1024
+        Maximum number of thread per block:             1024
+        Total amount of shared memory per block:        49152 bytes
+        Memory Bandwidth (GB/sec)	                    616 GB/s

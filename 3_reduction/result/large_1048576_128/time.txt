@@ -1,0 +1,18 @@
+ver 1 time: 2.1697e-05seconds
+ver 1 BW: 193.313GB/s
+
+ver 2 time: 8.543e-06seconds
+ver 2 BW: 490.964GB/s
+
+ver 3 time: 7.793e-06seconds
+ver 3 BW: 538.214GB/s
+
+ver 4 time: 7.651e-06seconds
+ver 4 BW: 548.203GB/s
+
+ver 5 time: 8.075e-06seconds
+ver 5 BW: 519.418GB/s
+
+ver 6 time: 6.615e-06seconds
+ver 6 BW: 634.06GB/s
+

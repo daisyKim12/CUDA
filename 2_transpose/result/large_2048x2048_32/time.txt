@@ -1,0 +1,6 @@
+ver 1: 1.8073e-05sec 
+ver 2: 4.597e-06sec 
+ver 3: 2.995e-06sec 
+ver 4: 2.948e-06sec 
+ver 5: 1.9217e-05sec 
+ver 6: 3.558e-06sec 
