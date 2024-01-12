@@ -32,7 +32,7 @@ int main(void) {
     cudaMemcpy(M_d, M_h, total_size * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(N_d, N_h, total_size * sizeof(float), cudaMemcpyHostToDevice);
     
-    for(int ver = 1; ver <= 5; ver++) {
+    for(int ver = 1; ver <= 4; ver++) {
         std::cout << "< ver " << ver << " running ... >\n";
         cudaError_t cudaErr = cudaGetLastError();
         std::cerr << "CUDA error: " << cudaGetErrorString(cudaErr) << "\n" << std::endl;    
@@ -49,7 +49,7 @@ int main(void) {
 
 
     std::cout << "\n--------------------result------------------\n" << std::endl;
-    for(int ver = 1; ver <= 5; ver++) {
+    for(int ver = 1; ver <= 4; ver++) {
         std::cout << "ver " << ver <<" time: " << run_time[ver-1] <<"seconds"<< std::endl;
     }
 

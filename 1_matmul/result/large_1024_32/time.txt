@@ -1,16 +1,16 @@
-ver 1 time: 1.9474e-05seconds
+ver 1 time: 1.7679e-05seconds
 ver 1 BW: 0GB/s
 
-ver 2 time: 2.6865e-05seconds
+ver 2 time: 3.1515e-05seconds
 ver 2 BW: 0GB/s
 
-ver 3 time: 1.4946e-05seconds
+ver 3 time: 1.655e-05seconds
 ver 3 BW: 0GB/s
 
-ver 4 time: 6.643e-06seconds
+ver 4 time: 3.1873e-05seconds
 ver 4 BW: 0GB/s
 
-ver 5 time: 6.9e-08seconds
+ver 5 time: 0seconds
 ver 5 BW: 0GB/s
 
 ver 6 time: 0seconds

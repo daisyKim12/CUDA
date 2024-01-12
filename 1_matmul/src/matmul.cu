@@ -109,6 +109,7 @@ __global__ void ver3(float* M, float* N, float* R, const long long int width)
             acc_top += sub_tile_M[ty][k] * sub_tile_N[k][tx];
             acc_bottom += sub_tile_M[ty + TILE_WIDTH][k] * sub_tile_N[k][tx];
         }
+        
 
         __syncthreads();
 
@@ -120,14 +121,14 @@ __global__ void ver3(float* M, float* N, float* R, const long long int width)
 
 __global__ void ver4(float* M, float* N, float* R, const long long int width)
 {   
-    __shared__ float sub_tile_M[TILE_WIDTH * 4][TILE_WIDTH];
+    __shared__ float sub_tile_M[TILE_WIDTH * 2][TILE_WIDTH];
     __shared__ float sub_tile_N[TILE_WIDTH][TILE_WIDTH];
 
     long tx = threadIdx.x;  long ty = threadIdx.y;
     long bx = blockIdx.x;   long by = blockIdx.y;
     
     long col = tx + TILE_WIDTH * bx;
-    long row = ty + (TILE_WIDTH * 4) * by;
+    long row = ty + (TILE_WIDTH * 2) * by;
 
     float *acc = new float[4];
     
@@ -135,8 +136,8 @@ __global__ void ver4(float* M, float* N, float* R, const long long int width)
         //load 4 sqaure from M
         sub_tile_M[ty][tx]                      = M[row * width + idx * TILE_WIDTH + tx];
         sub_tile_M[ty + TILE_WIDTH][tx]         = M[(row + TILE_WIDTH)* width + idx * TILE_WIDTH + tx];
-        sub_tile_M[ty + TILE_WIDTH * 2][tx]     = M[(row + TILE_WIDTH * 2)* width + idx * TILE_WIDTH + tx];
-        sub_tile_M[ty + TILE_WIDTH * 3][tx]     = M[(row + TILE_WIDTH * 3)* width + idx * TILE_WIDTH + tx];
+        // sub_tile_M[ty + TILE_WIDTH * 2][tx]     = M[(row + TILE_WIDTH * 2)* width + idx * TILE_WIDTH + tx];
+        // sub_tile_M[ty + TILE_WIDTH * 3][tx]     = M[(row + TILE_WIDTH * 3)* width + idx * TILE_WIDTH + tx];
 
         // load single square of N
         sub_tile_N[ty][tx] = N[(idx * TILE_WIDTH + ty) * width + col];
@@ -147,8 +148,8 @@ __global__ void ver4(float* M, float* N, float* R, const long long int width)
         for(int k = 0; k < TILE_WIDTH; k++) {
             acc[0] += sub_tile_M[ty][k] * sub_tile_N[k][tx];
             acc[1] += sub_tile_M[ty + TILE_WIDTH][k] * sub_tile_N[k][tx];
-            acc[2] += sub_tile_M[ty + TILE_WIDTH * 2][k] * sub_tile_N[k][tx];
-            acc[3] += sub_tile_M[ty + TILE_WIDTH * 3][k] * sub_tile_N[k][tx];
+            // acc[2] += sub_tile_M[ty + TILE_WIDTH * 2][k] * sub_tile_N[k][tx];
+            // acc[3] += sub_tile_M[ty + TILE_WIDTH * 3][k] * sub_tile_N[k][tx];
         }
 
         __syncthreads();
@@ -157,20 +158,20 @@ __global__ void ver4(float* M, float* N, float* R, const long long int width)
 
     R[row * width + col]                        = acc[0];
     R[(row + TILE_WIDTH) * width + col]         = acc[1];
-    R[(row + TILE_WIDTH * 2) * width + col]     = acc[2];
-    R[(row + TILE_WIDTH * 3) * width + col]     = acc[3];
+    // R[(row + TILE_WIDTH * 2) * width + col]     = acc[2];
+    // R[(row + TILE_WIDTH * 3) * width + col]     = acc[3];
 
 }
 
 double run_matmul(float *M, float *N,  float *out, long long int width, int tile_width, int ver) {
 
-    int height = width;
+    long long int height = width;
     //define block, grid dimension
     //need to make threads to cover the overall matrix
     dim3 dimGrid1(width/TILE_WIDTH, height/TILE_WIDTH, 1);
     dim3 dimGrid2(width/TILE_WIDTH/2, height/TILE_WIDTH, 1);
     dim3 dimGrid3(width/TILE_WIDTH, (height/TILE_WIDTH)/2, 1);
-    dim3 dimGrid4(width/TILE_WIDTH, (height/TILE_WIDTH)/4, 1);
+    dim3 dimGrid4(width/TILE_WIDTH, (height/TILE_WIDTH)/2, 1);
     dim3 dimBlock(TILE_WIDTH, TILE_WIDTH, 1);
     
     std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
@@ -191,7 +192,6 @@ double run_matmul(float *M, float *N,  float *out, long long int width, int tile
             ver4<<<dimGrid4, dimBlock>>>(M, N, out, width);
             break;
         case 5:
-
             break;
         default:
             break;

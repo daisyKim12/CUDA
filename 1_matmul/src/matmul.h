@@ -6,10 +6,10 @@
 
 // #define TILE_WIDTH 32
 // #define WIDTH 1024
-#define WIDTH 4096
+// #define WIDTH 4096
 
 #define TILE_WIDTH 32
-// #define WIDTH 16384
+#define WIDTH 16384
 
 #include <cstdio>
 #include <cstdlib>
