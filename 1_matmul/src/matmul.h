@@ -5,8 +5,8 @@
 #define NUM 10
 #define SKEW 1
 
-#define TILE_WIDTH 16
-#define WIDTH 16384
+#define TILE_WIDTH 4
+#define WIDTH 16
 
 #include <cstdio>
 #include <cstdlib>
@@ -17,6 +17,5 @@
 #include <iostream>
 
 double run_matmul(float *M, float *N, float *out, long long int size, int blocksize, int ver);
-
 
 #endif

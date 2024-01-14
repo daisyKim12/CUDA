@@ -1,6 +1,41 @@
 #include "matmul.h"
-void ver0(float* M, float* N, float* r, const long long int width) {
+#include <algorithm>
 
+void ver0(float* M, float* N, float* r, const long long int width) {
+    // Assuming TILE_WIDTH is defined somewhere
+
+    // Allocate 2D arrays for submatrices
+    float subtile_M[TILE_WIDTH][TILE_WIDTH];
+    float subtile_N[TILE_WIDTH][TILE_WIDTH];
+    
+    int i, j, k, x, y, z;
+    int incr = TILE_WIDTH;
+
+    for (i = 0; i < width; i += incr) {
+        for (j = 0; j < width; j += incr) {
+            for (k = 0; k < width; k += incr) {
+                // Load submatrices into shared memory
+                for (x = 0; x < incr; x++) {
+                    for (y = 0; y < incr; y++) {
+                        subtile_M[x][y] = M[(i + x) * width + k + y];
+                        subtile_N[x][y] = N[(k + x) * width + j + y];
+                    }
+                }
+
+                // Compute submatrix multiplication
+                for (x = 0; x < incr; x++) {
+                    for (y = 0; y < incr; y++) {
+                        float acc = 0;
+                        for (z = 0; z < incr; z++) {
+                            acc += subtile_M[x][z] * subtile_N[z][y];
+                        }
+                        // Update result matrix
+                        r[(i + x) * width + j + y] += acc;
+                    }
+                }
+            }
+        }
+    }
 }
 
 __global__ void ver1(float* M, float* N, float* R, const long long int width)
@@ -189,6 +224,9 @@ double run_matmul(float *M, float *N,  float *out, long long int width, int tile
 
     std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
     switch(ver){
+        case 0:
+            //ver0(M, N, out, width);
+            break;
         case 1:
             ver1<<<dimGrid1, dimBlock>>>(M, N, out, width);
             break;
