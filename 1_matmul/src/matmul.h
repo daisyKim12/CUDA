@@ -5,8 +5,8 @@
 #define NUM 10
 #define SKEW 1
 
-#define TILE_WIDTH 4
-#define WIDTH 16
+#define TILE_WIDTH 16
+#define WIDTH 16348
 
 #include <cstdio>
 #include <cstdlib>
