@@ -3,12 +3,9 @@
 
 
 #define NUM 10
+#define SKEW 1
 
-// #define TILE_WIDTH 32
-// #define WIDTH 1024
-// #define WIDTH 4096
-
-#define TILE_WIDTH 32
+#define TILE_WIDTH 16
 #define WIDTH 16384
 
 #include <cstdio>

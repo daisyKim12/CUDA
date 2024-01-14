@@ -10,11 +10,11 @@ int main(int argc, char *argv[]) {
 
     int ver = atoi(argv[1]);
 
-    const char* M_file = "../result/large_1024_32/M.txt";
-    const char* N_file = "../result/large_1024_32/N.txt";
-    const char* result_file = "../result/large_1024_32/result.txt";
-    const char* optimal_file = "../result/large_1024_32/optimal_result.txt";
-    const char* time_file = "../result/large_1024_32/time.txt";
+    const char* M_file = "../result/small/M.txt";
+    const char* N_file = "../result/small/N.txt";
+    const char* result_file = "../result/small/result.txt";
+    const char* optimal_file = "../result/small/optimal_result.txt";
+    const char* time_file = "../result/small/time.txt";
 
     double *run_time = new double[10];
 
@@ -48,7 +48,9 @@ int main(int argc, char *argv[]) {
 
     std::cout << "host memory: result_h" << std::endl;
     print_array(result_h, NUM);
-    //save_result(result_h, width, width, M_file);
+    save_result(M_h, width, width, M_file);
+    save_result(N_h, width, width, N_file);
+    save_result(result_h, width, width, result_file);
 
     std::cout << "\n--------------------result------------------\n" << std::endl;
     std::cout << "ver " << ver <<" time: " << run_time[ver-1] <<"seconds"<< std::endl;
