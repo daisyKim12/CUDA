@@ -95,13 +95,14 @@ int main(int argc, char** argv) {
     cudaMemcpy(M_d, M_h, total_size *sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(N_d, N_h, total_size *sizeof(float), cudaMemcpyHostToDevice);
     GET_TIME(finish);
-    printf("copying memory from host to device:\t\t %f sec\n", finish - start);
+    //printf("copying memory:\t\t %f sec\n", finish - start);
 
     dim3 dimGrid(width/TILE_WIDTH, (width/TILE_WIDTH)/4, 1);
     dim3 dimBlock(TILE_WIDTH, TILE_WIDTH, 1);
     
     GET_TIME(start);
     matmul<<<dimGrid, dimBlock>>>(M_d, N_d, result_d, width);
+    cudaDeviceSynchronize();
     GET_TIME(finish);
     printf("kernel run time:\t\t %f sec\n", finish - start);
 
@@ -122,7 +123,7 @@ int main(int argc, char** argv) {
     cudaMallocManaged(&q, total_size * sizeof(float), cudaMemAttachHost);
     cudaMallocManaged(&r, total_size * sizeof(float));
     GET_TIME(finish);
-    printf("allocating host and device memory:\t\t %f sec\n", finish - start);
+    printf("allocating memory:\t\t %f sec\n", finish - start);
 
     GET_TIME(start);
     init_array(p, total_size, 8811);
@@ -135,6 +136,7 @@ int main(int argc, char** argv) {
     
     GET_TIME(start);
     matmul<<<dimGrid, dimBlock>>>(p, q, r, width);
+    cudaDeviceSynchronize();
     GET_TIME(finish);
     printf("kernel run time:\t\t %f sec\n", finish - start);
 
@@ -144,6 +146,35 @@ int main(int argc, char** argv) {
     print_array(r, PRINT);
 
     cudaFree(p); cudaFree(q); cudaFree(r);
+
+//part 3: using pinned memory
+    printf("part 3: using pinned memory\n");
+
+    float *x, *y, *gpuRef;
+    GET_TIME(start);
+    CUDA_CHECK(cudaMallocHost((void**)&x, total_size * sizeof(float)));
+    CUDA_CHECK(cudaMallocHost((void**)&y, total_size * sizeof(float)));
+    CUDA_CHECK(cudaMallocManaged((void**)&gpuRef, total_size * sizeof(float)));
+    GET_TIME(finish);
+    printf("allocating memory:\t\t %f sec\n", finish - start);
+
+    GET_TIME(start);
+    init_array(x, total_size, 8811);
+    init_array(y, total_size, 9700);
+    GET_TIME(finish);
+    printf("initializing on host:\t\t %f sec\n", finish - start);
+
+    memset(gpuRef, 0, total_size * sizeof(float));
+    
+    GET_TIME(start);
+    matmul<<<dimGrid, dimBlock>>>(x, y, gpuRef, width);
+    cudaDeviceSynchronize();
+    GET_TIME(finish);
+    printf("kernel run time:\t\t %f sec\n", finish - start);
+
+    print_array(gpuRef, PRINT);
+
+    cudaFree(x); cudaFree(y); cudaFree(gpuRef);
     return 0;
 
 }
