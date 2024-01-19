@@ -71,6 +71,9 @@ int main(int argc, char** argv)
         
         printf("Device Number: %d\n", 0);
         printf("  Device name: %s\n", prop.name);
+        printf("  Device L2 cache size: %d\n", prop.l2CacheSize);
+        printf("  Device Shared mem per block: %ld\n", prop.sharedMemPerBlock);
+
         printf("  Memory Clock Rate (KHz): %d\n",
             prop.memoryClockRate);
         printf("  Memory Bus Width (bits): %d\n",
