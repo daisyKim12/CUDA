@@ -148,7 +148,7 @@ int main(int argc, char** argv)
     delete[] N_h;
     delete[] S_h;
 
-// using Unified memory
+// using pinned memory
     printf("\npart 2: using pinned memory\n");
     printf("Matrix size: nx %d ny %d\n", nx, ny);
 
