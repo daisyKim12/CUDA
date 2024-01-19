@@ -90,7 +90,7 @@ int main(int argc, char** argv)
     size_t nBytes = nxy * sizeof(float);
 
 // using cudaMemcpy
-    printf("<without unified mem>\n");
+    printf("part 1: using cudaMemcpy\n");
     printf("Matrix size: nx %d ny %d\n", nx, ny);
 
     float *M_d, *N_d,  *S_d;
@@ -149,11 +149,11 @@ int main(int argc, char** argv)
     delete[] S_h;
 
 // using Unified memory
-    printf("\n<with unified mem>\n");
+    printf("\npart 2: using pinned memory\n");
     printf("Matrix size: nx %d ny %d\n", nx, ny);
 
     // malloc host memory
-    // cudaMallocManaged will allocate on unified memory
+    // cudaMallocHost will allocate pinned memory
     float *A, *B, *hostRef, *gpuRef;
     CUDA_CHECK(cudaMallocHost((void**)&A, nBytes));
     CUDA_CHECK(cudaMallocHost((void**)&B, nBytes));
@@ -191,12 +191,11 @@ int main(int argc, char** argv)
     checkResult(hostRef, gpuRef, nxy);
 
     // free device global memory
-    CUDA_CHECK(cudaFree(A));
-    CUDA_CHECK(cudaFree(B));
-    CUDA_CHECK(cudaFree(hostRef));
-    CUDA_CHECK(cudaFree(gpuRef));
+    // CUDA_CHECK(cudaFree(A));
+    // CUDA_CHECK(cudaFree(B));
+    // CUDA_CHECK(cudaFree(hostRef));
+    // CUDA_CHECK(cudaFree(gpuRef));
 
-    CUDA_CHECK(cudaDeviceReset());
     return 0;
 }
 
