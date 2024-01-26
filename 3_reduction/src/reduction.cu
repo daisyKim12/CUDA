@@ -307,6 +307,7 @@ double run_reduction(float *in, float *out, long size, int blocksize, int ver) {
         default:
             break;
     }
+    cudaDeviceSynchronize();
     std::chrono::duration<double>sec = std::chrono::system_clock::now() - start;
     // std::cout << "ver " << ver <<" : " << sec.count() <<"seconds"<< std::endl;
 

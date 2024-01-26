@@ -1,18 +1,18 @@
-ver 1 time: 9.8077e-05seconds
-ver 1 BW: 42.7654GB/s
+ver 1 time: 0.00318785seconds
+ver 1 BW: 1.31572GB/s
 
-ver 2 time: 2.0287e-05seconds
-ver 2 BW: 206.748GB/s
+ver 2 time: 0.00138454seconds
+ver 2 BW: 3.02938GB/s
 
-ver 3 time: 2.2943e-05seconds
-ver 3 BW: 182.814GB/s
+ver 3 time: 0.00115923seconds
+ver 3 BW: 3.61819GB/s
 
-ver 4 time: 1.9519e-05seconds
-ver 4 BW: 214.883GB/s
+ver 4 time: 0.000891541seconds
+ver 4 BW: 4.70456GB/s
 
-ver 5 time: 1.5872e-05seconds
-ver 5 BW: 264.258GB/s
+ver 5 time: 0.000727921seconds
+ver 5 BW: 5.76203GB/s
 
-ver 6 time: 1.8335e-05seconds
-ver 6 BW: 228.759GB/s
+ver 6 time: 0.0006972seconds
+ver 6 BW: 6.01593GB/s
 

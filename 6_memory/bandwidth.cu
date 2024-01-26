@@ -9,13 +9,13 @@
 #include </usr/local/cuda/include/cuda.h>
 #include </usr/local/cuda/include/cuda_runtime_api.h>
 
-void initialData(float* in, const int size)
+void initialData(float* in, const long long int size)
 {
     for (int i = 0; i < size; i++)
         in[i] = (rand() & 0xFF) / 10.f;
 }
 
-void sumMatrixOnHost(float *A, float *B, float *C, const int nx, const int ny)
+void sumMatrixOnHost(float *A, float *B, float *C, const long long int nx, const long long int ny)
 {
     float* ia = A;
     float* ib = B;
@@ -29,6 +29,20 @@ void sumMatrixOnHost(float *A, float *B, float *C, const int nx, const int ny)
         ia += nx;
         ib += nx;
         ic += nx;
+    }
+}
+
+void getFullBandwidthOnHost(float *A, const long long int nx, const long long int ny)
+{
+    
+    float* ia = A;
+    float temp = 0;
+
+    for(long long int i = 0; i < nx * ny; i++)
+    {
+        temp = ia[i];
+        temp = temp + 1;
+        ia[i] = temp;
     }
 }
 
@@ -47,7 +61,7 @@ void checkResult(float* hostRef, float* gpuRef, const int size)
 
 
 __global__
-void sumMatrixOnGPU(float* A, float* B, float* C, const int width, const int height)
+void sumMatrixOnGPU(float* A, float* B, float* C, const long long int width, const long long int height)
 {
     unsigned int col = blockDim.x * blockIdx.x + threadIdx.x;
     unsigned int row = blockDim.y * blockIdx.y + threadIdx.y;
@@ -83,18 +97,18 @@ int main(int argc, char** argv)
     }
 
     // setup size of matrix
-    int nx, ny;
-    int power = 12;
+    long long int nx, ny;
+    long long int power = 12;
     if (argc > 1)
         power = atoi(argv[1]);
     nx = ny = 1 << power;
 
-    int nxy = nx * ny;
+    long long int nxy = nx * ny;
     size_t nBytes = nxy * sizeof(float);
 
 // using cudaMemcpy
     printf("part 1: using cudaMemcpy\n");
-    printf("Matrix size: nx %d ny %d\n", nx, ny);
+    printf("Matrix size: nx %llu ny %llu\n", nx, ny);
 
     float *M_d, *N_d,  *S_d;
     float *M_h = new float[nBytes];
@@ -122,6 +136,13 @@ int main(int argc, char** argv)
     sumMatrixOnHost(M_h, N_h, S_h, nx, ny);
     GET_TIME(finish);
     printf("sumMatrix on host:\t %f sec\n", finish - start);
+    printf("Utilized CPU bandwidth (GB/s): %f\n", (3 * nBytes) / 1.0e9 / (finish - start));
+
+    GET_TIME(start);
+    getFullBandwidthOnHost(M_h, nx, ny);
+    GET_TIME(finish);
+    printf("getFullBandwidth on host:\t %f sec\n", finish - start);
+    printf("Utilized CPU bandwidth (GB/s): %f\n", (2 * nBytes) / 1.0e9 / (finish - start));
 
     // invode kernel at host side
     int dimX = 32;
@@ -129,14 +150,13 @@ int main(int argc, char** argv)
     dim3 blocks(dimX, dimY);
     dim3 grids((nx + blocks.x - 1) / blocks.x, (ny + blocks.y - 1) / blocks.y);
     
-    // warm-up kernel
-    sumMatrixOnGPU<<<grids, blocks>>>(M_d, N_d, S_d, nx, ny);
-    CUDA_CHECK(cudaDeviceSynchronize());
-
     GET_TIME(start);
     sumMatrixOnGPU<<<grids, blocks>>>(M_d, N_d, S_d, nx, ny);
+    cudaDeviceSynchronize();
     GET_TIME(finish);
-    printf("sumMatrix on gpu :\t %f sec <<<(%d,%d), (%d,%d)>>>\n", finish-start, grids.x, grids.y, blocks.x, blocks.y);
+
+    printf("sumMatrix on gpu :\t %f sec <<<(%d,%d), (%d,%d)>>>\n", (finish - start), grids.x, grids.y, blocks.x, blocks.y);
+    printf("Utilized GPU bandwidth (GB/s): %f\n", (3 * nBytes) / 1.0e9 / (finish - start));
 
     GET_TIME(start);
     CUDA_CHECK(cudaMemcpy(S_h, S_d, nBytes, cudaMemcpyDeviceToHost))
@@ -150,54 +170,6 @@ int main(int argc, char** argv)
     delete[] M_h;
     delete[] N_h;
     delete[] S_h;
-
-// using pinned memory
-    printf("\npart 2: using pinned memory\n");
-    printf("Matrix size: nx %d ny %d\n", nx, ny);
-
-    // malloc host memory
-    // cudaMallocHost will allocate pinned memory
-    float *A, *B, *hostRef, *gpuRef;
-    CUDA_CHECK(cudaMallocHost((void**)&A, nBytes));
-    CUDA_CHECK(cudaMallocHost((void**)&B, nBytes));
-    CUDA_CHECK(cudaMallocHost((void**)&hostRef, nBytes));
-    CUDA_CHECK(cudaMallocHost((void**)&gpuRef, nBytes));
-
-    // initialize time
-    GET_TIME(start);
-    initialData(A, nxy);
-    initialData(B, nxy);
-    GET_TIME(finish);
-    printf("initialization: \t %f sec\n", finish - start);
-
-    //memset함수는 어떤 메모리의 시작점부터 연속된 범위를 어떤 값으로(바이트 단위) 모두 지정하고 싶을 때 사용하는 함수이다.
-    memset(hostRef, 0, nBytes);
-    memset(gpuRef, 0, nBytes);
-
-    // add matrix at host side for result check
-    GET_TIME(start);
-    sumMatrixOnHost(A, B, hostRef, nx, ny);
-    GET_TIME(finish);
-    printf("sumMatrix on host:\t %f sec\n", finish - start);
-
-    // warm-up kernel
-    sumMatrixOnGPU<<<grids, blocks>>>(A, B, gpuRef, nx, ny);
-    CUDA_CHECK(cudaDeviceSynchronize());
-
-    GET_TIME(start);
-    sumMatrixOnGPU<<<grids, blocks>>>(A, B, gpuRef, nx, ny);
-    CUDA_CHECK(cudaDeviceSynchronize());
-    GET_TIME(finish);
-    printf("sumMatrix on gpu :\t %f sec <<<(%d,%d), (%d,%d)>>>\n", finish-start, grids.x, grids.y, blocks.x, blocks.y);
-
-    // check device results
-    checkResult(hostRef, gpuRef, nxy);
-
-    // free device global memory
-    // CUDA_CHECK(cudaFree(A));
-    // CUDA_CHECK(cudaFree(B));
-    // CUDA_CHECK(cudaFree(hostRef));
-    // CUDA_CHECK(cudaFree(gpuRef));
 
     return 0;
 }
