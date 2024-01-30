@@ -1,3 +1,16 @@
+RTX 2080 Ti
+    Architecture:       Turing
+    GPCs:               6
+    TPCs:               34
+    SMs:                68
+    CUDA Cores / SM     64
+    CUDA Cores / GPU    4352
+    Tensor Cores / SM   8
+    Tensor Cores / GPU  544
+    RT Cores            68
+    GPU Base Clock MHz  1350
+
+
 *-display                 
        description: VGA compatible controller
        product: TU102 [GeForce RTX 2080 Ti]
@@ -39,10 +52,10 @@ hardware spec
         Memory Bandwidth (GB/sec)	616 GB/s
 
 hardware spec summary
-        CUDA Cores	            4352
-        warps per sm            4
-        threads per warps       32
-        Maximum number of threads per multiprocessor:   1024
-        Maximum number of thread per block:             1024
-        Total amount of shared memory per block:        49152 bytes
-        Memory Bandwidth (GB/sec)	                    616 GB/s
+        CUDA Cores	                4352
+        warps per sm                    4
+        threads per warps               32
+        Maximum number of threads per multiprocessor:           1024
+        Maximum number of thread per block:                     1024
+        Total amount of shared memory per block:                49152 bytes
+        Memory Bandwidth (GB/sec)	                        616 GB/s

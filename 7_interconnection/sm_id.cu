@@ -19,6 +19,23 @@ __global__ void kern(int *sm){
 
 int main(int argc, char *argv[]){
 
+    //setup device
+    int nDevice = 0;
+
+    cudaGetDeviceCount(&nDevice);
+    std::cout << "Number of device: " << nDevice << "\n";
+
+    for(int i = 0; i<1; i++) {
+        cudaDeviceProp prop;
+        CUDA_CHECK(cudaGetDeviceProperties(&prop, i));
+
+        std::cout << "Device Number: " << i << "\n";
+        std::cout << "  Device name: " << prop.name << "\n";
+        std::cout << "  Memory Clock Rate (KHz): " << prop.memoryClockRate << "\n";
+        std::cout << "  Peak Memory Bandwidth (GB/s): " << 2.0*prop.memoryClockRate*(prop.memoryBusWidth/8)/1.0e6 << "\n";
+        std::cout << "Turing Arch\n";
+    }
+
     int N = atoi(argv[1]);
 
     // sm_h for host memory pointer
