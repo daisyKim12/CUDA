@@ -1,10 +1,13 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <cuda_runtime.h>
+#include <iostream>
+#include </usr/local/cuda/include/cuda.h>
+#include </usr/local/cuda/include/cuda_runtime_api.h>
 
 #ifdef _WIN32
 #include <chrono>
