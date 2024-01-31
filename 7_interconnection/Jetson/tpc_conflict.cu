@@ -31,6 +31,13 @@ uint get_smid(void) {
 
 }
 
+__device__ void kern(int *sm){
+
+   if (threadIdx.x==0)
+      sm[blockIdx.x]=get_smid();
+
+}
+
 /* 
 The goal here is to evaluate a memory-intensive program that continuously accesses the L2 cache 
 (and bypass L1 cache such that the interconnect is accessed). 
@@ -41,11 +48,16 @@ We execute this synthetic code concurrently on SM0 and one other SM in the GPU,
 i.e., only two SMs are active.
 */
 
-__device__ int flag  = 0;
+__device__ int flag_A  = 0;
+__device__ int flag_B  = 0;
+
 
 __global__ 
-void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uint config_sm_id)
+void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uint config_sm_id, int* sm_d)
 {
+
+    kern(sm_d);
+
     /* 
     sm_id: current sm
     config_sm_id: the sm number that i want to activate to see the influence to sm0 execution time
@@ -65,7 +77,7 @@ void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uin
             A_h[base + i] = thread_idx;
             //A_h[base + i] = sm_id;
         }
-        flag = flag + 1;
+        flag_A = 1;
     }
     // if current sm is the sm that i want to check
     else if(sm_id == config_sm_id) {
@@ -74,13 +86,22 @@ void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uin
             B_h[base + i] = thread_idx;
             //B_h[base + i] = sm_id;
         }
-        flag = flag + 1;
+        flag_B = 1;
     }
     else {
-        int temp = 0;
-        for(;temp < 13684; temp++);
-        while(flag == 2);
+        for (int a = 0; a < 13684; a++)
+            for (int b = 0; b < 13684; b++);
+                for (int b = 0; b < 13684; b++);
     }
+    // else {
+    //     while (1) {
+    //         if(flag_A == 1)
+    //             break;  
+    //         for (int temp = 0; temp < 13684; temp++);
+    //     }
+    //     flag_A = 0;
+    //     flag_B = 0;
+    // }
 
 }
 
@@ -95,7 +116,7 @@ int main(int argc, char** argv) {
     double start, finish;
     
     int long long nx;
-    int power = 14;
+    int power = 22;
     nx = 1 << power;
     size_t nBytes = nx * sizeof(int);
 
@@ -120,15 +141,20 @@ int main(int argc, char** argv) {
     double avg = 0;
     int max_idx = -1;
 
+    //check sm
+    int *sm_h, *sm_d;
+    sm_h= (int *)malloc(MAX_SM*sizeof(int));
+    cudaMalloc((void**)&sm_d,MAX_SM*sizeof(*sm_d));
+
     // warmup kernel
-    memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, 0);
-    CUDA_CHECK(cudaDeviceSynchronize());
-    memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, 0);
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, 0);
+    // CUDA_CHECK(cudaDeviceSynchronize());
+    // memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, 0);
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     for(int i = 0; i<MAX_SM; i++) {
         GET_TIME(start);
-        memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, i);
+        memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, i, sm_d);
         CUDA_CHECK(cudaDeviceSynchronize());
         GET_TIME(finish);
         double duration = finish - start;
@@ -151,10 +177,15 @@ int main(int argc, char** argv) {
     
     CUDA_CHECK(cudaMemcpy(A_h, A_d, nBytes, cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaMemcpy(B_h, B_d, nBytes, cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(sm_h, sm_d, MAX_SM*sizeof(int), cudaMemcpyDeviceToHost));
+
     CUDA_CHECK(cudaDeviceSynchronize());                                //must add cuda device sync to get updated array
     
     // checkArr(A_h, PRINT_NUM);
     // checkArr(B_h, PRINT_NUM);
+
+    for (int i=0;i<MAX_SM;i++)
+        printf("thread block %d -> %d\n",i,sm_h[i]);
 
     delete[] A_h;
     delete[] B_h;
