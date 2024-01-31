@@ -41,6 +41,7 @@ We execute this synthetic code concurrently on SM0 and one other SM in the GPU,
 i.e., only two SMs are active.
 */
 
+__device__ int flag  = 0;
 
 __global__ 
 void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uint config_sm_id)
@@ -64,6 +65,7 @@ void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uin
             A_h[base + i] = thread_idx;
             //A_h[base + i] = sm_id;
         }
+        flag = flag + 1;
     }
     // if current sm is the sm that i want to check
     else if(sm_id == config_sm_id) {
@@ -72,6 +74,12 @@ void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uin
             B_h[base + i] = thread_idx;
             //B_h[base + i] = sm_id;
         }
+        flag = flag + 1;
+    }
+    else {
+        int temp = 0;
+        for(;temp < 13684; temp++);
+        while(flag == 2);
     }
 
 }
