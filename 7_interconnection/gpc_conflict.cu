@@ -71,6 +71,17 @@ void memory_write_test(int* C_d, int long long array_size, int* tpc_list)
     }
 }
 
+void generate_random(int range, int exclusion, int *out) {
+    for (int i = 0; i < 4; i++) {
+        int randomValue;
+        do {
+            randomValue = rand() % (range + 1);
+        } while (randomValue == exclusion);
+
+        out[i] = randomValue;
+    }
+}
+
 
 int main(int argc, char** argv) {
 
@@ -125,29 +136,49 @@ int main(int argc, char** argv) {
     for(int i = 0 ; i < MAX_TPC; i++) {
         tpc_list_unified[1] = i;
 
-        for(int a = 0 ; a < MAX_TPC; a++) {
-            for(int b = 0 ; b < MAX_TPC; b++) {
-                for(int c = 0 ; c < MAX_TPC; c++) {
-                    for(int d = 0 ; d < MAX_TPC; d++) {
+        for(int j = 0; j < 200; j++) {
+            int *temp = new int[4];
+            generate_random(MAX_TPC, i, temp);
 
-                        // set tcp_list
-                        tpc_list_unified[2] = a;
-                        tpc_list_unified[3] = b;
-                        tpc_list_unified[4] = c;
-                        tpc_list_unified[5] = d;
+            // set tcp_list
+            tpc_list_unified[2] = temp[0];
+            tpc_list_unified[3] = temp[1];
+            tpc_list_unified[4] = temp[2];
+            tpc_list_unified[5] = temp[3];
+
+            GET_TIME(start);
+            memory_write_test<<<nx/TPC_PER_GPC/8, 8>>>(C_d, nx, tpc_list_unified);
+            CUDA_CHECK(cudaDeviceSynchronize());
+            GET_TIME(finish);
+            double duration = finish - start;
+            //std::cout << duration << "\n";
+            avg[i] = avg[i] + duration;
+
+        }
+
+        // for(int a = 0 ; a < MAX_TPC; a++) {
+        //     for(int b = 0 ; b < MAX_TPC; b++) {
+        //         for(int c = 0 ; c < MAX_TPC; c++) {
+        //             for(int d = 0 ; d < MAX_TPC; d++) {
+
+        //                 // set tcp_list
+        //                 tpc_list_unified[2] = a;
+        //                 tpc_list_unified[3] = b;
+        //                 tpc_list_unified[4] = c;
+        //                 tpc_list_unified[5] = d;
                         
 
-                        GET_TIME(start);
-                        memory_write_test<<<nx/TPC_PER_GPC/8, 8>>>(C_d, nx, tpc_list_unified);
-                        CUDA_CHECK(cudaDeviceSynchronize());
-                        GET_TIME(finish);
-                        double duration = finish - start;
-                        //std::cout << duration << "\n";
-                        avg[i] = avg[i] + duration;
-                    }
-                }
-            }
-        }
+        //                 GET_TIME(start);
+        //                 memory_write_test<<<nx/TPC_PER_GPC/8, 8>>>(C_d, nx, tpc_list_unified);
+        //                 CUDA_CHECK(cudaDeviceSynchronize());
+        //                 GET_TIME(finish);
+        //                 double duration = finish - start;
+        //                 //std::cout << duration << "\n";
+        //                 avg[i] = avg[i] + duration;
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     for(int i = 0; i<MAX_TPC; i++) {
