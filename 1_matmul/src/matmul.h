@@ -6,7 +6,7 @@
 #define SKEW 1
 
 #define TILE_WIDTH 16
-#define WIDTH 8192
+#define WIDTH 96
 
 #include <cstdio>
 #include <cstdlib>
