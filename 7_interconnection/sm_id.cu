@@ -33,7 +33,6 @@ int main(int argc, char *argv[]){
         std::cout << "  Device name: " << prop.name << "\n";
         std::cout << "  Memory Clock Rate (KHz): " << prop.memoryClockRate << "\n";
         std::cout << "  Peak Memory Bandwidth (GB/s): " << 2.0*prop.memoryClockRate*(prop.memoryBusWidth/8)/1.0e6 << "\n";
-        std::cout << "Turing Arch\n";
     }
 
     int N = atoi(argv[1]);
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]){
     cudaMemcpy(sm_h, sm_d, N*sizeof(int), cudaMemcpyDeviceToHost);
 
     for (int i=0;i<N;i++)
-        printf("thread block %d: %d\n",i,sm_h[i]);
+        printf("thread block %d -> sm%d\n",i,sm_h[i]);
 
     return 0;
 }

@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
     // initialData(A_h, nx);
     // initialData(B_h, nx);
 
-    checkArr(A_h, PRINT_NUM);
+    // checkArr(A_h, PRINT_NUM);
     // checkArr(B_h, PRINT_NUM);
 
     cudaMemcpy(A_d, A_h, nBytes, cudaMemcpyHostToDevice);
@@ -132,10 +132,10 @@ int main(int argc, char** argv) {
         avg = avg + duration;
     }
 
-    // for(int i = 0; i<MAX_SM; i++) {
-    //     std::cout << i << ": " << time[i] << "\n";
-    // }
-    //     std::cout << "\n";
+    for(int i = 0; i<MAX_SM; i++) {
+        std::cout << i << ", " << time[i] << "\n";
+    }
+        std::cout << "\n";
 
     avg = avg / MAX_SM;
     std::cout << "Maximum: (" << max_idx << ")" << max << "\n";
@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
     CUDA_CHECK(cudaMemcpy(B_h, B_d, nBytes, cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaDeviceSynchronize());                                //must add cuda device sync to get updated array
     
-    checkArr(A_h, PRINT_NUM);
+    // checkArr(A_h, PRINT_NUM);
     // checkArr(B_h, PRINT_NUM);
 
     delete[] A_h;
