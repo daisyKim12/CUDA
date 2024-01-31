@@ -3,7 +3,7 @@
 #include "9_util/common.h"
 
 #define MAX_SM 68
-#define PRINT_NUM 128
+#define PRINT_NUM 16384
 
 void initialData(int* in, const int size)
 {
@@ -62,6 +62,7 @@ void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uin
         // all thread in sm0 will write to A_h-> sequential write 
         for(int i = 0; i<amount; i++) {
             A_h[base + i] = thread_idx;
+            //A_h[base + i] = sm_id;
         }
     }
     // if current sm is the sm that i want to check
@@ -69,6 +70,7 @@ void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uin
         // all thread in config sm will write to B_h-> sequential write
         for(int i = 0; i<amount; i++) {
             B_h[base + i] = thread_idx;
+            //B_h[base + i] = sm_id;
         }
     }
 
@@ -98,7 +100,7 @@ int main(int argc, char** argv) {
     // initialData(A_h, nx);
     // initialData(B_h, nx);
 
-    // checkArr(A_h, PRINT_NUM);
+    checkArr(A_h, PRINT_NUM);
     // checkArr(B_h, PRINT_NUM);
 
     cudaMemcpy(A_d, A_h, nBytes, cudaMemcpyHostToDevice);
@@ -143,7 +145,7 @@ int main(int argc, char** argv) {
     CUDA_CHECK(cudaMemcpy(B_h, B_d, nBytes, cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaDeviceSynchronize());                                //must add cuda device sync to get updated array
     
-    // checkArr(A_h, PRINT_NUM);
+    checkArr(A_h, PRINT_NUM);
     // checkArr(B_h, PRINT_NUM);
 
     delete[] A_h;
