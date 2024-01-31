@@ -91,10 +91,18 @@ void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uin
 
 int main(int argc, char** argv) {
 
-    if( argc <= 1)
+    if( argc < 6){
+        std::cout << "please enter 6 number ranging 0 to 33" << std::endl;
         return 0;
+    }
 
     int fixed_sm_id = atoi(argv[1]);
+    // uint check_sm_list[5];
+    // for(int i = 0; i<TPC_PER_GPC - 1; i++) {
+    //     check_sm_list[i] = atoi(argv[i+2]);
+    // }
+    uint check_sm_list[5] = {3,6,8,12,33};
+
 
     double start, finish;
     
@@ -130,7 +138,6 @@ int main(int argc, char** argv) {
     // memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, 0);
     // CUDA_CHECK(cudaDeviceSynchronize());
 
-    uint check_sm_list[5] = {3,6,8,12,33};
     GET_TIME(start);
     memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, check_sm_list);
     CUDA_CHECK(cudaDeviceSynchronize());
