@@ -1,0 +1,6 @@
+Number of device: 1
+Device Number: 0
+  Device name: Orin
+  Memory Clock Rate (KHz): 624000
+  Peak Memory Bandwidth (GB/s): 19.968
+  Shared Memory Per Block (KB): 49.152
