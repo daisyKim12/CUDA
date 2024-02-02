@@ -136,7 +136,7 @@ int main(int argc, char** argv) {
     for(int i = 0 ; i < MAX_TPC; i++) {
         tpc_list_unified[1] = i;
 
-        for(int j = 0; j < 200; j++) {
+        for(int j = 0; j < 500; j++) {
             int *temp = new int[4];
             generate_random(MAX_TPC, i, temp);
 
