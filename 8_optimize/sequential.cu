@@ -1,6 +1,3 @@
-/* 
-stream order does matter
-*/
 #include <cstdio>
 #include <cstdlib>
 #include <chrono>
@@ -13,7 +10,7 @@ stream order does matter
 #define SKEW 1
 
 #define TILE_WIDTH 16
-#define WIDTH 2048     //65536 main memory shortage
+#define WIDTH 8192     //65536 main memory shortage
 
 __device__ 
 uint get_smid(void) {
@@ -125,98 +122,62 @@ int main(int argc, char *argv[]) {
 
     float *M_h = new float[total_size];
     float *N_h = new float[total_size];
-    float *result_1_h = new float[total_size];
-    float *result_2_h = new float[total_size];
-    float *result_3_h = new float[total_size];
-    float *result_4_h = new float[total_size];
+    float *result_h = new float[total_size];
+    float *M_d, *N_d, *result_d;
 
-
-    float *M_1_d, *N_1_d, *result_1_d;
-    float *M_2_d, *N_2_d, *result_2_d;
-    float *M_3_d, *N_3_d, *result_3_d;
-    float *M_4_d, *N_4_d, *result_4_d;
+    double run_time = 0;
 
     init_array(M_h, total_size, 8811);
     init_array(N_h, total_size, 9700);
 
-    std::cout << "------------------stream-------------------" << std::endl;
-
-    // make stream
-    cudaStream_t stream1, stream2, stream3, stream4;
-    cudaStreamCreate(&stream1);
-    cudaStreamCreate(&stream2);
-    cudaStreamCreate(&stream3);
-    cudaStreamCreate(&stream4);
+    std::cout << "------------------sequential-------------------" << std::endl;
 
     // memory allocation
-    cudaMallocHost((void**)&M_1_d, total_size * sizeof(float));
-    cudaMallocHost((void**)&N_1_d, total_size * sizeof(float));
-    cudaMallocHost((void**)&result_1_d, total_size * sizeof(float));
-
-    cudaMallocHost((void**)&M_2_d, total_size * sizeof(float));
-    cudaMallocHost((void**)&N_2_d, total_size * sizeof(float));
-    cudaMallocHost((void**)&result_2_d, total_size * sizeof(float));
-
-    cudaMallocHost((void**)&M_3_d, total_size * sizeof(float));
-    cudaMallocHost((void**)&N_3_d, total_size * sizeof(float));
-    cudaMallocHost((void**)&result_3_d, total_size * sizeof(float));
-
-    cudaMallocHost((void**)&M_4_d, total_size * sizeof(float));
-    cudaMallocHost((void**)&N_4_d, total_size * sizeof(float));
-    cudaMallocHost((void**)&result_4_d, total_size * sizeof(float));
-
     std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
-    dim3 dimGrid(width/tile_width, (width/tile_width)/4, 1);
-    dim3 dimBlock(tile_width, tile_width, 1);
+    cudaMalloc((void**)&M_d, total_size * sizeof(float));
+    cudaMalloc((void**)&N_d, total_size * sizeof(float));
+    cudaMalloc((void**)&result_d, total_size * sizeof(float));
+    cudaDeviceSynchronize();
+    std::chrono::duration<double>sec = std::chrono::system_clock::now() - start;
+    std::cout << "memory allocation: " << sec.count() << std::endl;
 
     // memory copy
-    cudaMemcpyAsync(M_1_d, M_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
-    cudaMemcpyAsync(N_1_d, N_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
-    matmul<<<dimGrid, dimBlock, 0, stream1>>>(M_1_d, N_1_d, result_1_d, width);
-    cudaMemcpyAsync(result_1_h, result_1_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
-
-    cudaMemcpyAsync(M_2_d, M_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
-    cudaMemcpyAsync(N_2_d, N_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
-    matmul<<<dimGrid, dimBlock, 0, stream2>>>(M_2_d, N_2_d, result_2_d, width);
-    cudaMemcpyAsync(result_2_h, result_2_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
-
-    cudaMemcpyAsync(M_3_d, M_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
-    cudaMemcpyAsync(N_3_d, N_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
-    matmul<<<dimGrid, dimBlock, 0, stream3>>>(M_3_d, N_3_d, result_3_d, width);
-    cudaMemcpyAsync(result_3_h, result_3_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
-
-    cudaMemcpyAsync(M_4_d, M_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
-    cudaMemcpyAsync(N_4_d, N_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
-    matmul<<<dimGrid, dimBlock, 0, stream4>>>(M_4_d, N_4_d, result_4_d, width);
-    cudaMemcpyAsync(result_4_h, result_4_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
+    start = std::chrono::system_clock::now();
+    cudaMemcpy(M_d, M_h, total_size * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(N_d, N_h, total_size * sizeof(float), cudaMemcpyHostToDevice);
+    cudaDeviceSynchronize();
+    sec = std::chrono::system_clock::now() - start;
+    std::cout << "memory copy(read): " << sec.count() << std::endl;
+    run_time += sec.count();
 
     // kernel launch
-
-
-
-
-
-
+    start = std::chrono::system_clock::now();
+    dim3 dimGrid(width/tile_width, (width/tile_width)/4, 1);
+    dim3 dimBlock(tile_width, tile_width, 1);
+    matmul<<<dimGrid, dimBlock>>>(M_d, N_d, result_d, width);
+    cudaDeviceSynchronize();
+    sec = std::chrono::system_clock::now() - start;
+    std::cout << "kernel run time: " << sec.count() << std::endl;
+    run_time += sec.count();
 
     // memory copy
-
-
-
-
-
-    std::chrono::duration<double>sec = std::chrono::system_clock::now() - start;
+    start = std::chrono::system_clock::now();
+    cudaMemcpy(result_h, result_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
+    sec = std::chrono::system_clock::now() - start;
+    std::cout << "memory copy(write): " << sec.count() << std::endl;
+    run_time += sec.count();
     
     // total time
-    std::cout << "\ntotal time: " << sec.count() << "seconds" << std::endl;
+    std::cout << "\ntotal time: " << run_time << "seconds" << std::endl;
 
     cudaError cudaErr = cudaGetLastError();
     std::cerr << "CUDA error: " << cudaGetErrorString(cudaErr) << std::endl; 
     std::cout << "check result" << std::endl;
-    print_array(result_1_h, NUM);
+    print_array(result_h, NUM);
 
     
-    // cudaFree(M_1_d); cudaFree(N_1_d); cudaFree(result_1_d);
-    // delete[] M_h; delete[] N_h; delete[] result_1_h;
+    cudaFree(M_d); cudaFree(N_d); cudaFree(result_d);
+    delete[] M_h; delete[] N_h; delete[] result_h;
 
     return 0;
 }
