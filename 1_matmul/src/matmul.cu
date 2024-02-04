@@ -38,21 +38,8 @@ void ver0(float* M, float* N, float* r, const long long int width) {
     }
 }
 
-__device__ 
-uint get_smid(void) {
-
-     uint ret;
-
-     asm("mov.u32 %0, %smid;" : "=r"(ret) );
-
-     return ret;
-
-}
-
-
 __global__ void ver1(float* M, float* N, float* R, const long long int width)
 {   
-
 
     __shared__ float sub_tile_M[TILE_WIDTH][TILE_WIDTH];
     __shared__ float sub_tile_N[TILE_WIDTH][TILE_WIDTH];
@@ -173,9 +160,6 @@ __global__ void ver3(float* M, float* N, float* R, const long long int width)
 
 __global__ void ver4(float* M, float* N, float* R, const long long int width)
 {   
-
-    if(threadIdx.x == 0)
-        printf("%d ", get_smid());
 
     __shared__ float sub_tile_M[TILE_WIDTH * 4][TILE_WIDTH];
     __shared__ float sub_tile_N[TILE_WIDTH * 1][TILE_WIDTH];

@@ -5,8 +5,8 @@
 #define NUM 10
 #define SKEW 1
 
-#define TILE_WIDTH 32
-#define WIDTH 32768     //65536 main memory shortage
+#define TILE_WIDTH 16
+#define WIDTH 4096     //65536 main memory shortage
 
 #include <cstdio>
 #include <cstdlib>
