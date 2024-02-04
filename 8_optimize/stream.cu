@@ -191,8 +191,24 @@ int main(int argc, char *argv[]) {
     cudaMemcpyAsync(result_4_h, result_4_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
 
     // kernel launch
+    // cudaMemcpyAsync(M_1_d, M_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
+    // cudaMemcpyAsync(N_1_d, N_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
+    // cudaMemcpyAsync(M_2_d, M_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
+    // cudaMemcpyAsync(N_2_d, N_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
+    // cudaMemcpyAsync(M_3_d, M_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
+    // cudaMemcpyAsync(N_3_d, N_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
+    // cudaMemcpyAsync(M_4_d, M_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
+    // cudaMemcpyAsync(N_4_d, N_h, total_size * sizeof(float), cudaMemcpyHostToDevice, stream1);
+    
+    // matmul<<<dimGrid, dimBlock, 0, stream1>>>(M_1_d, N_1_d, result_1_d, width);
+    // matmul<<<dimGrid, dimBlock, 0, stream2>>>(M_2_d, N_2_d, result_2_d, width);
+    // matmul<<<dimGrid, dimBlock, 0, stream3>>>(M_3_d, N_3_d, result_3_d, width);
+    // matmul<<<dimGrid, dimBlock, 0, stream4>>>(M_4_d, N_4_d, result_4_d, width);
 
-
+    // cudaMemcpyAsync(result_1_h, result_1_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
+    // cudaMemcpyAsync(result_2_h, result_2_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
+    // cudaMemcpyAsync(result_3_h, result_3_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
+    // cudaMemcpyAsync(result_4_h, result_4_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
 
 
 
