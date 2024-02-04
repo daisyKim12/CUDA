@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     double *run_time = new double[10];
 
     long long int width = WIDTH;
-    int tile_width = TILE_WIDTH;
+    long long int tile_width = TILE_WIDTH;
     long long int total_size = width * width;
 
     float *M_h = new float[total_size];

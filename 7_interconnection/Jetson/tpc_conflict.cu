@@ -2,7 +2,7 @@
 
 #include "9_util/common.h"
 
-#define MAX_SM 68
+#define MAX_SM 34
 #define PRINT_NUM 16384
 
 void initialData(int* in, const int size)
@@ -71,7 +71,7 @@ void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uin
     int base = amount * thread_idx;             // base index for a single thread
 
     // if current sm is sm0
-    if (sm_id == fixed_sm_id) {
+    if (sm_id == 4) {
         // all thread in sm0 will write to A_h-> sequential write 
         for(int i = 0; i<amount; i++) {
             A_h[base + i] = thread_idx;
@@ -80,7 +80,7 @@ void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uin
         flag_A = 1;
     }
     // if current sm is the sm that i want to check
-    else if(sm_id == config_sm_id) {
+    else if(sm_id == 2) {
         // all thread in config sm will write to B_h-> sequential write
         for(int i = 0; i<amount; i++) {
             B_h[base + i] = thread_idx;

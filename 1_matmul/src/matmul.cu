@@ -38,8 +38,21 @@ void ver0(float* M, float* N, float* r, const long long int width) {
     }
 }
 
+__device__ 
+uint get_smid(void) {
+
+     uint ret;
+
+     asm("mov.u32 %0, %smid;" : "=r"(ret) );
+
+     return ret;
+
+}
+
+
 __global__ void ver1(float* M, float* N, float* R, const long long int width)
-{
+{   
+
 
     __shared__ float sub_tile_M[TILE_WIDTH][TILE_WIDTH];
     __shared__ float sub_tile_N[TILE_WIDTH][TILE_WIDTH];
@@ -160,14 +173,18 @@ __global__ void ver3(float* M, float* N, float* R, const long long int width)
 
 __global__ void ver4(float* M, float* N, float* R, const long long int width)
 {   
-    __shared__ float sub_tile_M[TILE_WIDTH * 4][TILE_WIDTH];
-    __shared__ float sub_tile_N[TILE_WIDTH][TILE_WIDTH];
 
-    long tx = threadIdx.x;  long ty = threadIdx.y;
-    long bx = blockIdx.x;   long by = blockIdx.y;
+    if(threadIdx.x == 0)
+        printf("%d ", get_smid());
+
+    __shared__ float sub_tile_M[TILE_WIDTH * 4][TILE_WIDTH];
+    __shared__ float sub_tile_N[TILE_WIDTH * 1][TILE_WIDTH];
+
+    long long int tx = threadIdx.x;  long long int ty = threadIdx.y;
+    long long int bx = blockIdx.x;   long long int by = blockIdx.y;
     
-    long col = tx + TILE_WIDTH * bx;
-    long row = ty + (TILE_WIDTH * 4) * by;
+    long long int col = tx + TILE_WIDTH * bx;
+    long long int row = ty + (TILE_WIDTH * 4) * by;
 
     float acc_1 = 0;
     float acc_2 = 0;
@@ -249,6 +266,10 @@ double run_matmul(float *M, float *N,  float *out, long long int width, int tile
     }
     
     cudaDeviceSynchronize();
+    cudaError_t cudaError = cudaGetLastError();
+    if (cudaError != cudaSuccess) {
+        fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(cudaError));
+    }
 
     std::chrono::duration<double>sec = std::chrono::system_clock::now() - start;
 
