@@ -1,13 +1,13 @@
 /* Reverse Engineering GPC Organization */
 
-#include "9_util/common.h"
+#include "1_util/common.h"
 #include <iostream>
 #include <fstream>
 
 #define TPC_PER_GPC 6
 #define MAX_SM 68               // SM   index 0~67
-#define MAX_TPC 34             // TPC  index 0_33
-#define PRINT_NUM 16384
+#define MAX_TPC 34             // TPC  index 0~33
+#define PRINT_NUM 16834
 
 void initialData(int* in, const int size)
 {
@@ -52,6 +52,10 @@ Unlike the TPC channel evaluation where we only selected 2 SMs, 6 SMs are needed
 __global__ 
 void memory_write_test(int* C_d, int long long array_size, int* tpc_list)
 {    
+    // C_d: array to write value
+    // array_size: total length of C_d
+    // tpc_list: list of tpc to check
+
     uint sm_id = get_smid();
 
     int long long row_size = array_size / 6;
@@ -71,12 +75,12 @@ void memory_write_test(int* C_d, int long long array_size, int* tpc_list)
     }
 }
 
-void generate_random(int range, int exclusion, int *out) {
-    for (int i = 0; i < 4; i++) {
+void generate_random(int range, int exclusion1, int exclusion2, int *out) {
+    for (int i = 2; i < 6; i++) {
         int randomValue;
         do {
             randomValue = rand() % (range + 1);
-        } while (randomValue == exclusion);
+        } while (randomValue == exclusion1 or randomValue == exclusion2);
 
         out[i] = randomValue;
     }
@@ -96,7 +100,6 @@ int main(int argc, char** argv) {
     // }
     //int tpc_list_h[TPC_PER_GPC] = {10,3,6,8,12,11};
 
-    uint tpc_list_h[6];
     double start, finish;
     
     int long long nx;
@@ -105,49 +108,45 @@ int main(int argc, char** argv) {
     size_t nBytes = nx * sizeof(int);
 
 
-    int *C_h = new int[nx];
+    uint tpc_list_h[6];
+    int *C_h = new int[nx];     
+    
     int *C_d;
-    int *tpc_list_d;
-    int *tpc_list_unified;
+    int *tpc_list_d;            int *tpc_list_unified;
+    
+    // allocate C
     CUDA_CHECK(cudaMalloc((void**)&C_d, nBytes));
-    CUDA_CHECK(cudaMalloc((void**)&tpc_list_d, TPC_PER_GPC * sizeof(int)));
-    CUDA_CHECK(cudaMallocManaged((void**)&tpc_list_unified, TPC_PER_GPC * sizeof(int)));
-
-    // initialData(A_h, nx);
-    // initialData(B_h, nx);
-
-    //checkArr(C_h, PRINT_NUM);
-
     cudaMemcpy(C_d, C_h, nBytes, cudaMemcpyHostToDevice);
+    // allocate tpc_list_d
+    CUDA_CHECK(cudaMalloc((void**)&tpc_list_d, TPC_PER_GPC * sizeof(uint)));
     cudaMemcpy(tpc_list_d, tpc_list_h, TPC_PER_GPC * sizeof(int), cudaMemcpyHostToDevice);
+    // allocate tpc_list_unified
+    CUDA_CHECK(cudaMallocManaged((void**)&tpc_list_unified, TPC_PER_GPC * sizeof(uint)));
 
     //fix tcp id
     for(int i = 0; i < TPC_PER_GPC ; i++)
         tpc_list_unified[i] = atoi(argv[1]);
     // warmup kernel
-    memory_write_test<<<nx/TPC_PER_GPC/8, 8>>>(C_d, nx, tpc_list_unified);
-    CUDA_CHECK(cudaDeviceSynchronize());
-    memory_write_test<<<nx/TPC_PER_GPC/8, 8>>>(C_d, nx, tpc_list_unified);
+    memory_write_test<<<nx/TPC_PER_GPC/32, 32>>>(C_d, nx, tpc_list_unified);
+    memory_write_test<<<nx/TPC_PER_GPC/32, 32>>>(C_d, nx, tpc_list_unified);
     CUDA_CHECK(cudaDeviceSynchronize());
 
     //double* max = new double[MAX_TPC];
     double* avg = new double[MAX_TPC];
 
     for(int i = 0 ; i < MAX_TPC; i++) {
+
+        if(i == tpc_list_unified[0])
+            continue;
+
         tpc_list_unified[1] = i;
 
-        for(int j = 0; j < 500; j++) {
-            int *temp = new int[4];
-            generate_random(MAX_TPC, i, temp);
+        for(long long int j = 0; j < 10000; j++) {
 
-            // set tcp_list
-            tpc_list_unified[2] = temp[0];
-            tpc_list_unified[3] = temp[1];
-            tpc_list_unified[4] = temp[2];
-            tpc_list_unified[5] = temp[3];
+            generate_random(MAX_TPC, tpc_list_unified[0], tpc_list_unified[1], tpc_list_unified);
 
             GET_TIME(start);
-            memory_write_test<<<nx/TPC_PER_GPC/8, 8>>>(C_d, nx, tpc_list_unified);
+            memory_write_test<<<nx/TPC_PER_GPC/32, 32>>>(C_d, nx, tpc_list_unified);
             CUDA_CHECK(cudaDeviceSynchronize());
             GET_TIME(finish);
             double duration = finish - start;
@@ -182,10 +181,11 @@ int main(int argc, char** argv) {
     }
 
     for(int i = 0; i<MAX_TPC; i++) {
-        std::cout << i << ": " << avg[i] << "\n";
+        std::cout << i << ", " << avg[i] << "\n";
     }
     std::cout << "\n";
 
+    // write result to avg.txt file
     const char* file = "avg.txt";
     std::ofstream dst(file);
     if(!dst.is_open()) {
@@ -193,16 +193,15 @@ int main(int argc, char** argv) {
     }
 
     for(int i = 0; i<MAX_TPC; i++) {
-        dst << i << ": " << avg[i] << "\n";
+        dst << i << ", " << avg[i] << "\n";
     }
     dst.close();
     
 
-
     CUDA_CHECK(cudaMemcpy(C_h, C_d, nBytes, cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaDeviceSynchronize());                                //must add cuda device sync to get updated array
     
-    //checkArr(C_h, PRINT_NUM);
+    checkArr(C_h, PRINT_NUM);
 
     delete[] C_h;
     CUDA_CHECK(cudaFree(C_d));
