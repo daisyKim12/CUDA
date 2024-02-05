@@ -2,7 +2,7 @@
 
 #include "9_util/common.h"
 
-#define MAX_SM 34
+#define MAX_SM 8
 #define PRINT_NUM 16384
 
 void initialData(int* in, const int size)
@@ -48,8 +48,8 @@ We execute this synthetic code concurrently on SM0 and one other SM in the GPU,
 i.e., only two SMs are active.
 */
 
-__device__ int flag_A  = 0;
-__device__ int flag_B  = 0;
+// __device__ int flag_A  = 0;
+// __device__ int flag_B  = 0;
 
 
 __global__ 
@@ -77,7 +77,6 @@ void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uin
             A_h[base + i] = thread_idx;
             //A_h[base + i] = sm_id;
         }
-        flag_A = 1;
     }
     // if current sm is the sm that i want to check
     else if(sm_id == 2) {
@@ -86,13 +85,8 @@ void memory_write_test(int* A_h, int* B_h, int array_size, uint fixed_sm_id, uin
             B_h[base + i] = thread_idx;
             //B_h[base + i] = sm_id;
         }
-        flag_B = 1;
     }
-    else {
-        for (int a = 0; a < 13684; a++)
-            for (int b = 0; b < 13684; b++);
-                for (int b = 0; b < 13684; b++);
-    }
+
     // else {
     //     while (1) {
     //         if(flag_A == 1)
@@ -147,10 +141,10 @@ int main(int argc, char** argv) {
     cudaMalloc((void**)&sm_d,MAX_SM*sizeof(*sm_d));
 
     // warmup kernel
-    // memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, 0);
-    // CUDA_CHECK(cudaDeviceSynchronize());
-    // memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, 0);
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, 0, sm_d);
+    CUDA_CHECK(cudaDeviceSynchronize());
+    memory_write_test<<<nx/8, 8>>>(A_d, B_d, nx, fixed_sm_id, 0, sm_d);
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     for(int i = 0; i<MAX_SM; i++) {
         GET_TIME(start);

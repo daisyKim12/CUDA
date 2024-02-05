@@ -1,13 +1,14 @@
 RTX 2080 Ti
     Architecture:       Turing
+    CUDA Cores:         4352
+    Tensor Cores        544
+    RT Cores            68
     GPCs:               6
     TPCs:               34
     SMs:                68
     CUDA Cores / SM     64
     CUDA Cores / GPU    4352
     Tensor Cores / SM   8
-    Tensor Cores / GPU  544
-    RT Cores            68
     GPU Base Clock MHz  1350
 
 

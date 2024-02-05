@@ -1,5 +1,16 @@
-Number of device: 1
-Device Number: 0
+Jetson Orin Nano
+    Architecture:       Ampere
+    CUDA Cores:         1024
+    Tensor Cores        32
+    RT Cores            ?
+    GPCs:               ?
+    TPCs:               ?
+    SMs:                8
+    CUDA Cores / SM     128
+    Tensor Cores / SM   4
+    GPU Base Clock MHz  624
+
+
   Device name: Orin
   Memory Clock Rate (KHz): 624000
   Peak Memory Bandwidth (GB/s): 19.968

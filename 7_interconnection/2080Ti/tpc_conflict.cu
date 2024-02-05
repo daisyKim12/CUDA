@@ -2,7 +2,7 @@
 
 #include "9_util/common.h"
 
-#define MAX_SM 68
+#define MAX_SM 84
 #define PRINT_NUM 16384
 
 void initialData(int* in, const int size)
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
     double start, finish;
     
     int long long nx;
-    int power = 14;
+    int power = 22;
     nx = 1 << power;
     size_t nBytes = nx * sizeof(int);
 
