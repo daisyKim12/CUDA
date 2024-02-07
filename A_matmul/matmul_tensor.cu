@@ -55,12 +55,12 @@ __global__ void WMMAF16TensorCore(half *A, half *B, float *C, float *D)
 	wmma::fragment<wmma::matrix_a, M, N, K, half, wmma::row_major> a_frag;
 	wmma::fragment<wmma::matrix_b, M, N, K, half, wmma::col_major> b_frag;
 	wmma::fragment<wmma::accumulator, M, N, K, float> ab_frag;
-	// wmma::fragment<wmma::accumulator, M, N, K, float> c_frag;
+	wmma::fragment<wmma::accumulator, M, N, K, float> c_frag;
 	
 	wmma::fill_fragment(ab_frag, 0.0f);
 
 	// AB = A*B
-	int a_col, a_row, b_col, b_row, c_col, c_row;
+	int a_col, a_row, b_col, b_row, c_col, c_row, ab_col, ab_row;
 	a_row = ix * M;
 	b_row = iy * N;
 	for (int k=0; k<K_TOTAL; k+=K) {
@@ -72,8 +72,17 @@ __global__ void WMMAF16TensorCore(half *A, half *B, float *C, float *D)
 			wmma::load_matrix_sync(b_frag, B + b_col + b_col * K_TOTAL, K_TOTAL);
 
 			// Perform the matrix multiplication
-			wmma::mma_sync(ab_frag, a_frag, b_frag, ab_frag);
+			wmma::mma_sync(ab_frag, a_frag, b_frag, ab_frag);				//does not save the result to memory
 		}
+	}
+
+	// D = AB
+	ab_col = b_row;
+	ab_row = a_row;
+	if (ab_row < M_TOTAL && ab_col < N_TOTAL) {
+
+		// Store the output
+		wmma::store_matrix_sync(D + ab_col + ab_row * N_TOTAL, c_frag, N_TOTAL, wmma::mem_row_major);
 	}
 
 	// D = AB + C
