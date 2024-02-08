@@ -6,7 +6,7 @@
 #define SKEW 1
 
 #define TILE_WIDTH 16
-#define WIDTH 4096     //65536 main memory shortage
+#define WIDTH 128     //65536 main memory shortage
 
 #include <cstdio>
 #include <cstdlib>
