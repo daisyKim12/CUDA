@@ -25,6 +25,13 @@ int main(int argc, char *argv[]) {
     long height = atoi(argv[1]);
     long total_size = width * height;
 
+    const char* file = "trans.txt";
+    std::ofstream dst(file, std::ios::app); // Open file in append mode
+    if(!dst.is_open()) {
+        std::cerr << "Error: can not open the file";
+    }
+    dst << "----------------" << width << "----------------" << "\n";
+
     float *A_h = new float[total_size];
     float *B_h = new float[total_size];
     float *A_d, *B_d;
