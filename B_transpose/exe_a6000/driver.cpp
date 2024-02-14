@@ -6,6 +6,7 @@
 #include <math.h>
 #include </usr/local/cuda/include/cuda.h>
 #include </usr/local/cuda/include/cuda_runtime_api.h>
+#include <fstream>
 
 
 /* 
@@ -13,11 +14,8 @@
 copying two size 64 float matrix into shared memory total 512B
 */
 
-double main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
 
-    const char* A_file = "../result/large_2048x2048_32/A.txt";
-    const char* B_file = "../result/large_2048x2048_32/B.txt";
-    const char* time_file = "../result/large_2048x2048_32/time.txt";
     // double *run_time = new double[10];
 
     // long width = WIDTH;
@@ -46,28 +44,40 @@ double main(int argc, char *argv[]) {
     //     cudaError_t cudaErr = cudaGetLastError();
     //     std::cerr << "CUDA error: " << cudaGetErrorString(cudaErr) << "\n" << std::endl;
     // }
+    for(int i = 0; i< 1000; i++) {
+        int ver = 6;
+        std::cout << "< ver " << ver << " running ... >\n";
+        double run_time = time_transpose(A_d, B_d, width, TILE_WIDTH, ver);
+        std::cout << "run time: " << run_time << "sec" << std::endl;
+        cudaError_t cudaErr = cudaGetLastError();
+        std::cerr << "CUDA error: " << cudaGetErrorString(cudaErr) << "\n" << std::endl;
+        
+        // run_time[0] = time_transpose(A_d, B_d, width, TILE_WIDTH, 6);
+
+        // copy result to host memory
+        cudaMemcpy(B_h, B_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
+
+        std::cout << "host memory: A" << std::endl;
+        print_array(A_h, NUM);
+
+        std::cout << "host memory: B" << std::endl;
+        print_array(B_h, NUM);
+
+        // write result to avg.txt file
+        std::cout << "saving..." << std::endl;
+        const char* file = "trans.txt";
+        std::ofstream dst(file, std::ios::app); // Open file in append mode
+        if(!dst.is_open()) {
+            std::cerr << "Error: can not open the file";
+        }
+        dst << run_time << "\n";
+
+        dst.close();
+    }
     
-    int ver = 6;
-    std::cout << "< ver " << ver << " running ... >\n";
-    double run_time = time_transpose(A_d, B_d, width, TILE_WIDTH, ver);
-    std::cout << "run time: " << run_time << "sec" << std::endl;
-    cudaError_t cudaErr = cudaGetLastError();
-    std::cerr << "CUDA error: " << cudaGetErrorString(cudaErr) << "\n" << std::endl;
-    
-    // run_time[0] = time_transpose(A_d, B_d, width, TILE_WIDTH, 6);
-
-    // copy result to host memory
-    cudaMemcpy(B_h, B_d, total_size * sizeof(float), cudaMemcpyDeviceToHost);
-
-    std::cout << "host memory: A" << std::endl;
-    print_array(A_h, NUM);
-    save_result(A_h, width, height, A_file);
-
-    std::cout << "host memory: B" << std::endl;
-    print_array(B_h, NUM);
 
     cudaFree(A_d); cudaFree(B_d);
     delete[] A_h; delete[] B_h;
 
-    return run_time;
+    return 0;
 }
