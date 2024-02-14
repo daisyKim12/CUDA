@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int ver = atoi(argv[1]);
+    int ver = 4;
 
     const char* A_file = "../result/large_1048576_128/A.txt";
     const char* B_file = "../result/large_1048576_128/B.txt";
@@ -17,7 +17,8 @@ int main(int argc, char *argv[]) {
     double *run_time = new double[10];
     double *bandwidth = new double[10];
 
-    long long int size = SIZE;
+    // long long int size = SIZE;
+    long long int size = atoi(argv[1]);
     int blocksize = BLOCK_SIZE;
 
     float *A_h = new float[size];

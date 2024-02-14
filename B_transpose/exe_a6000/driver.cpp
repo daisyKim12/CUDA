@@ -13,15 +13,18 @@
 copying two size 64 float matrix into shared memory total 512B
 */
 
-int main(void) {
+int main(int argc, char *argv[]) {
 
     const char* A_file = "../result/large_2048x2048_32/A.txt";
     const char* B_file = "../result/large_2048x2048_32/B.txt";
     const char* time_file = "../result/large_2048x2048_32/time.txt";
     double *run_time = new double[10];
 
-    long width = WIDTH;
-    long height = HEIGHT;
+    // long width = WIDTH;
+    // long height = HEIGHT;
+
+    long width = atoi(argv[1]);
+    long height = atoi(argv[1]);
     long total_size = width * height;
 
     float *A_h = new float[total_size];
@@ -36,13 +39,20 @@ int main(void) {
     // copy host memory to device
     cudaMemcpy(A_d, A_h, total_size * sizeof(float), cudaMemcpyHostToDevice);
     
-    for(int ver = 1; ver <=6; ver++)
-    {
-        std::cout << "< ver " << ver << " running ... >\n";
-        run_time[ver-1] = time_transpose(A_d, B_d, width, TILE_WIDTH, ver);
-        cudaError_t cudaErr = cudaGetLastError();
-        std::cerr << "CUDA error: " << cudaGetErrorString(cudaErr) << "\n" << std::endl;
-    }
+    // for(int ver = 1; ver <=6; ver++)
+    // {
+    //     std::cout << "< ver " << ver << " running ... >\n";
+    //     run_time[ver-1] = time_transpose(A_d, B_d, width, TILE_WIDTH, ver);
+    //     cudaError_t cudaErr = cudaGetLastError();
+    //     std::cerr << "CUDA error: " << cudaGetErrorString(cudaErr) << "\n" << std::endl;
+    // }
+    
+    int ver = 6;
+    std::cout << "< ver " << ver << " running ... >\n";
+    double run_time = time_transpose(A_d, B_d, width, TILE_WIDTH, ver);
+    std::cout << "run time: " << run_time << "sec" << std::endl;
+    cudaError_t cudaErr = cudaGetLastError();
+    std::cerr << "CUDA error: " << cudaGetErrorString(cudaErr) << "\n" << std::endl;
     
     // run_time[0] = time_transpose(A_d, B_d, width, TILE_WIDTH, 6);
 

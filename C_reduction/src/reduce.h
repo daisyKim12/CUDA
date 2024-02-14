@@ -15,7 +15,7 @@
 #define BLOCK_SIZE 128
 //#define SIZE 4194304
 //#define SIZE 1048576
-#define SIZE 8192
+#define SIZE 4096
 
 #include <cstdio>
 #include <cstdlib>

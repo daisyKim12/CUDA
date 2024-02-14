@@ -254,6 +254,8 @@ double run_reduction(float *in, float *out, long size, int blocksize, int ver) {
     
     int local_size = size;
     int iter = calcuate_iter(size,blocksize);
+    int cnt = 0;
+
 
     // check kernel run time
     std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
@@ -282,10 +284,13 @@ double run_reduction(float *in, float *out, long size, int blocksize, int ver) {
             break;
         case 4:
             ver4<<<local_size/blocksize, blocksize/2, blocksize * sizeof(float)>>>(in, out);
+            cnt ++;
             for(; iter > 0; iter--) {
                 local_size /= blocksize;
                 ver4<<<local_size, blocksize/2, blocksize * sizeof(float)>>>(out, out);
+                cnt++;
             }
+            printf("cnt: %d\n", cnt);
             break; 
         case 5:
             ver5<<<local_size/blocksize, blocksize/2, blocksize * sizeof(float)>>>(in, out);
