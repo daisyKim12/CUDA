@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <cuda.h>
 #include <mma.h>
+#include <cstdlib> 
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
@@ -37,6 +38,9 @@ using namespace nvcuda;
 
 __host__ void InitMatrix(half *A, half *B, float *C)
 {
+
+	srand(1100);
+
 	for (int i = 0; i < M_TOTAL*K_TOTAL; i++)
 		A[i] = __float2half(rand() % 1000 / 1000.0f);
 	for (int i = 0; i < K_TOTAL*N_TOTAL; i++)
@@ -166,7 +170,19 @@ int main()
 	printf("[+]   A: %d x %d\n", M_TOTAL, K_TOTAL);
 	printf("[+]   B: %d x %d\n", K_TOTAL, N_TOTAL);
 	printf("[+]   C: %d x %d\n", M_TOTAL, N_TOTAL);
-	
+
+	printf("printing A \n")
+	for(int i = 0; i < 10; i++) {
+		printf("%f ", (float)A[i]);
+	}
+	printf("\nprinting B \n")
+	for(int i = 0; i < 10; i++) {
+		printf("%f ", (float)A[i]);
+	}
+	printf("\nprinting C \n")
+	for(int i = 0; i < 10; i++) {
+		printf("%f ", (float)A[i]);
+	}
 	// computing gemm using tensor core
 	printf("[*] Computing D = A * B +C with Tensor Cores...\n");
 	// D = A * B +C, D holds the result after ret

@@ -48,9 +48,6 @@ int main(int argc, char *argv[]) {
 
     std::cout << "host memory: result_h" << std::endl;
     print_array(result_h, NUM);
-    // save_result(M_h, width, width, M_file);
-    // save_result(N_h, width, width, N_file);
-    // save_result(result_h, width, width, result_file);
 
     std::cout << "\n--------------------result------------------\n" << std::endl;
     std::cout << "ver " << ver <<" time: " << run_time[ver-1] <<"seconds"<< std::endl;
