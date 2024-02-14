@@ -18,7 +18,6 @@ int main(void) {
     const char* A_file = "../result/large_2048x2048_32/A.txt";
     const char* B_file = "../result/large_2048x2048_32/B.txt";
     const char* time_file = "../result/large_2048x2048_32/time.txt";
-    double *run_time = new double[10];
 
     long width = WIDTH;
     long height = HEIGHT;

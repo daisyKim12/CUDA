@@ -171,15 +171,15 @@ int main()
 	printf("[+]   B: %d x %d\n", K_TOTAL, N_TOTAL);
 	printf("[+]   C: %d x %d\n", M_TOTAL, N_TOTAL);
 
-	printf("printing A \n")
+	printf("printing A \n");
 	for(int i = 0; i < 10; i++) {
 		printf("%f ", (float)A[i]);
 	}
-	printf("\nprinting B \n")
+	printf("\nprinting B \n");
 	for(int i = 0; i < 10; i++) {
 		printf("%f ", (float)A[i]);
 	}
-	printf("\nprinting C \n")
+	printf("\nprinting C \n");
 	for(int i = 0; i < 10; i++) {
 		printf("%f ", (float)A[i]);
 	}

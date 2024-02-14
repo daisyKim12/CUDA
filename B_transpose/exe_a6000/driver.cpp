@@ -13,12 +13,12 @@
 copying two size 64 float matrix into shared memory total 512B
 */
 
-int main(int argc, char *argv[]) {
+double main(int argc, char *argv[]) {
 
     const char* A_file = "../result/large_2048x2048_32/A.txt";
     const char* B_file = "../result/large_2048x2048_32/B.txt";
     const char* time_file = "../result/large_2048x2048_32/time.txt";
-    double *run_time = new double[10];
+    // double *run_time = new double[10];
 
     // long width = WIDTH;
     // long height = HEIGHT;
@@ -65,12 +65,9 @@ int main(int argc, char *argv[]) {
 
     std::cout << "host memory: B" << std::endl;
     print_array(B_h, NUM);
-    save_result(B_h, width, height, B_file);
-
-    save_run_time(run_time, 6, time_file);
 
     cudaFree(A_d); cudaFree(B_d);
     delete[] A_h; delete[] B_h;
 
-    return 0;
+    return run_time;
 }
