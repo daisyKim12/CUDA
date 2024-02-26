@@ -18,6 +18,20 @@ __global__ void mb2(float* A, float* C)
 int main(int argc, char** argv)
 {
 
+    // check device properties
+    int nDevice = 0;
+
+    cudaGetDeviceCount(&nDevice);
+    std::cout << "Number of device: " << nDevice <<std::endl;
+
+    if(nDevice != 0) {
+        cudaDeviceProp prop;
+        cudaGetDeviceProperties(&prop, 0);
+
+        std::cout << "   L1 cache size: " << prop.l2CacheSize;
+    }
+
+
     // calculate execution time
     double start, finish, duration;
     double avg_execution_time = 0;
