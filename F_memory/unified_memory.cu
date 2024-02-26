@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <cuda_runtime.h>
-#include "9_util/common.h"
+#include "1_util/common.h"
 #include </usr/local/cuda/include/cuda.h>
 #include </usr/local/cuda/include/cuda_runtime_api.h>
 
