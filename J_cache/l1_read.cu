@@ -28,13 +28,13 @@ int main(int argc, char** argv)
     int stride;
     if(argc > 1)
         stride = atoi(argv[1]);
-    std::cout << "stride = " << stride << std::endl;
 
     float *A_d, *C_d;
     CUDA_CHECK(cudaMallocManaged((void**)&A_d, nBytes));
     CUDA_CHECK(cudaMallocManaged((void**)&C_d, nBytes));
 
     if(argc > 1) {
+        std::cout << "stride : " << stride << std::endl;
         GET_TIME(start);
         dim3 grid(128,1,1);
         dim3 block(64,1,1);
@@ -42,6 +42,7 @@ int main(int argc, char** argv)
         CUDA_CHECK(cudaDeviceSynchronize());
         GET_TIME(finish);
         duration = finish - start;
+        std::cout << "execution time: " << duration << std::endl;
     }
     else {
         for(stride = 1; stride <= 32; stride = stride *2) {
@@ -60,7 +61,6 @@ int main(int argc, char** argv)
         }
     }
 
-    std::cout << "execution time: " << duration << std::endl;
 
     CUDA_CHECK(cudaFree(A_d));
     CUDA_CHECK(cudaFree(C_d));
